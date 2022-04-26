@@ -14,6 +14,8 @@ ts = int(time.time())
 logger = logger.get_logger('autotune', 'log/tune_database_{}.log'.format(ts))
 INTERNAL_METRICS_LEN = 51
 # Deprecated Var Definition
+# mysql knobs
+'''
 KNOBS = [
          # 'sync_binlog',
          # 'innodb_flush_log_at_trx_commit',
@@ -95,6 +97,47 @@ KNOBS = [
          'innodb_page_cleaners',
          'innodb_flush_neighbors',
 ]
+'''
+
+'''
+KNOBS = [
+    'wal_buffers',
+    'deadlock_timeout',
+    'seq_page_cost',
+    'temp_buffers',
+    'wal_writer_delay',
+    'bgwriter_flush_after',
+    'bgwriter_lru_maxpages',
+    'commit_siblings',
+    'work_mem',
+    'checkpoint_flush_after',
+    'wal_sync_method',
+    'min_wal_size',
+    'bgwriter_lru_multiplier',
+    'checkpoint_completion_target',
+    'bgwriter_delay',
+    'checkpoint_timeout',
+    'effective_cache_size',
+    'default_statistics_target',
+    'random_page_cost',
+    'effective_io_concurrency'
+]
+'''
+
+
+KNOBS = [
+    'backend_flush_after',
+    'checkpoint_completion_target',
+    'max_worker_processes',
+    'shared_buffers',
+    'wal_buffers',
+]
+
+
+
+
+
+
 KNOB_DETAILS = None
 EXTENDED_KNOBS = None
 num_knobs = len(KNOBS)
@@ -109,9 +152,10 @@ def init_knobs(num_total_knobs):
 
     # TODO: Test the request
 
-    memory_size = 32 * 1024 * 1024 * 1024
-    disk_size = 300 * 1024 * 1024 * 1024
+    memory_size = 32 * 1024 * 1024 * 1024 # 32GB
+    disk_size = 30 * 1024 * 1024 * 1024 # only 30 GB disk size
 
+    '''
     KNOB_DETAILS = {
         # 'sync_binlog': ['integer', [1, 1000, 1]],
         # 'innodb_flush_log_at_trx_commit': ['integer', [0, 2, 1]],
@@ -191,6 +235,41 @@ def init_knobs(num_total_knobs):
         'innodb_page_cleaners': ['integer', [1, 64, 4]],
         'innodb_flush_neighbors': ['enum', [0, 2, 1]], 
     }
+    '''
+
+    '''
+    KNOB_DETAILS = [
+        'wal_buffers': [],
+        'deadlock_timeout',
+        'seq_page_cost',
+        'temp_buffers',
+        'wal_writer_delay',
+        'bgwriter_flush_after',
+        'bgwriter_lru_maxpages',
+        'commit_siblings',
+        'work_mem',
+        'checkpoint_flush_after',
+        'wal_sync_method',
+        'min_wal_size',
+        'bgwriter_lru_multiplier',
+        'checkpoint_completion_target',
+        'bgwriter_delay',
+        'checkpoint_timeout',
+        'effective_cache_size',
+        'default_statistics_target',
+        'random_page_cost',
+        'effective_io_concurrency'
+    ]
+    '''
+
+    KNOB_DETAILS = [
+        'backend_flush_after': ['integer', [0, 256, 0]],
+        'checkpoint_completion_target': ['float', [0.0, 1.0, 0.9]],
+        'max_worker_processes': ['integer', [0, 262143, 8]],
+        'shared_buffers': ['integer', [16, memory_size, int(memory_size * 0.25)]],
+        'wal_buffers': ['integer', [-1, 262143, 0]],
+    ]
+
     # TODO: ADD Knobs HERE! Format is the same as the KNOB_DETAILS
     UNKNOWN = 0
     EXTENDED_KNOBS = {
