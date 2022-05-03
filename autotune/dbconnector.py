@@ -92,19 +92,11 @@ class PostgresConnector(DBConnector):
 
     def connect_db(self):
         conn = False
-        if self.sock:
-            conn = psycopg2.connect(host=self.dbhost,
-                                           user=self.dbuser,
-                                           passwd=self.dbpasswd,
-                                           db=self.dbname,
-                                           port=self.dbport,
-                                           unix_socket=self.sock)
-        else:
-            conn = psycopg2.connect(host=self.dbhost,
-                                           user=self.dbuser,
-                                           passwd=self.dbpasswd,
-                                           db=self.dbname,
-                                           port=self.dbport)
+        conn = psycopg2.connect(host=self.dbhost,
+                                        user=self.dbuser,
+                                        password=self.dbpasswd,
+                                        dbname=self.dbname,
+                                        port=self.dbport)
         return conn
 
     def close_db(self):
