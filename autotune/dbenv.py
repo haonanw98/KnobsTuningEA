@@ -36,8 +36,8 @@ value_type_metrics = [
     'buffer_pool_pages_dirty', 'buffer_pool_bytes_dirty', 'buffer_pool_pages_free',
     'trx_rseg_history_len', 'file_num_open_files', 'innodb_page_size']
 
-dst_data_path = os.environ.get("DATADST")
-src_data_path = os.environ.get("DATASRC")
+dst_data_path = /var/lib/postgresql/12/main# os.environ.get("DATADST")
+src_data_path = ~/main# os.environ.get("DATASRC")
 log_num_default = 2
 log_size_default = 50331648
 
@@ -662,7 +662,7 @@ class MySQLEnv(DBEnv):
             avg_physical_memory = sum(monitor_data_dict['mem_physical']) / (
                         len(monitor_data_dict['mem_physical']) + 1e-9)
             resource = (None, avg_read_io, avg_write_io, avg_virtual_memory, avg_physical_memory, dirty_pages, hit_ratio, page_data)
-            logger.info(external_metrics)
+            logger.info(resource)
             return external_metrics, internal_metrics, resource
         else:
             return external_metrics, internal_metrics, [0]*8
@@ -1046,7 +1046,7 @@ class MySQLEnv(DBEnv):
         elif self.y_variable == 'lat':
             return float(metrics[1])
 
-class MySQLEnv(DBEnv):
+class PostgresEnv(DBEnv):
     def __init__(self,
                  workload,
                  knobs_config,
@@ -1063,7 +1063,7 @@ class MySQLEnv(DBEnv):
                  workload_zoo_config='',
                  workload_zoo_app='',
                  oltpbench_config_xml='',
-                 disk_name='nvme1n1',
+                 disk_name='nvme0n1',
                  tps_constraint=0,
                  latency_constraint=0,
                  pid=9999,
@@ -1131,7 +1131,7 @@ class MySQLEnv(DBEnv):
             TIMEOUT = BENCHMARK_RUNNING_TIME + BENCHMARK_WARMING_TIME
             RESTART_FREQUENCY = 30000
 
-    def apply_rds_knobs(self, knobs):
+    def apply_knobs(self, knobs):
         # self.restart_rds()
         # apply knobs remotely
         db_conn = MysqlConnector(host=self.host,
@@ -1755,13 +1755,8 @@ class MySQLEnv(DBEnv):
                 logger.info("{} with value of is smaller than min, adjusted".format(key))
         logger.info("[step {}] generate knobs: {}\n".format(self.step_count, knobs))
         collect_resource = False
-        if self.rds_mode:
-            try:
-                flag = self.apply_rds_knobs(knobs)
-            except:
-                flag = self.apply_knobs(knobs)
-        else:
-            flag = self.apply_knobs(knobs)
+        
+        flag = self.apply_knobs(knobs)
 
         if not flag:
             if best_action_applied:
@@ -1888,7 +1883,6 @@ class MySQLEnv(DBEnv):
     def reinitdb_magic(self):
         self._kill_psqld()
         time.sleep(10)
-        os.system('rm -rf {}'.format(self.sock))
         os.system('rm -rf {}'.format(dst_data_path))  # avoid moving src into dst
         logger.info('remove all files in {}'.format(dst_data_path))
         os.system('cp -r {} {}'.format(src_data_path, dst_data_path))
