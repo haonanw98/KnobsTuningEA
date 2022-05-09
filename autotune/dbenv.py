@@ -116,7 +116,7 @@ class MySQLEnv(DBEnv):
         self.threads = threads
         self.best_result = './autotune_best.res'
         self.knobs_config = knobs_config
-        self.knobs_detail = init_knobs(knobs_config, knob_num)
+        self.knobs_detail = initialize_knobs(knobs_config, knob_num)
         self.default_knobs = get_default_knobs()
         self.rds_mode = rds_mode
         self.oltpbench_config_xml = oltpbench_config_xml
@@ -1093,7 +1093,7 @@ class PostgresEnv(DBEnv):
         self.threads = threads
         self.best_result = './autotune_best.res'
         self.knobs_config = knobs_config
-        self.knobs_detail = initialize_knobs(knobs_config, knob_num)
+        self.knobs_detail = init_knobs(knobs_config, knob_num)
         self.default_knobs = get_default_knobs()
         self.rds_mode = rds_mode
         self.oltpbench_config_xml = oltpbench_config_xml
