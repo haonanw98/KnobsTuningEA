@@ -262,13 +262,13 @@ def init_knobs(num_total_knobs):
     ]
     '''
 
-    KNOB_DETAILS = [
+    KNOB_DETAILS = {
         'backend_flush_after': ['integer', [0, 256, 0]],
         'checkpoint_completion_target': ['float', [0.0, 1.0, 0.9]],
         'max_worker_processes': ['integer', [0, 262143, 8]],
         'shared_buffers': ['integer', [16, memory_size, int(memory_size * 0.25)]],
         'wal_buffers': ['integer', [-1, 262143, 0]],
-    ]
+    }
 
     # TODO: ADD Knobs HERE! Format is the same as the KNOB_DETAILS
     UNKNOWN = 0
