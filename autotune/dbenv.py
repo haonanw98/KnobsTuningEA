@@ -36,8 +36,8 @@ value_type_metrics = [
     'buffer_pool_pages_dirty', 'buffer_pool_bytes_dirty', 'buffer_pool_pages_free',
     'trx_rseg_history_len', 'file_num_open_files', 'innodb_page_size']
 
-dst_data_path = /var/lib/postgresql/12/main# os.environ.get("DATADST")
-src_data_path = ~/main# os.environ.get("DATASRC")
+dst_data_path = /var/lib/postgresql/12/main # os.environ.get("DATADST")
+src_data_path = ~/main # os.environ.get("DATASRC")
 log_num_default = 2
 log_size_default = 50331648
 
@@ -1073,9 +1073,9 @@ class PostgresEnv(DBEnv):
                  ):
         super().__init__(workload)
         self.knobs_config = knobs_config
-        self.mysqld = os.environ.get('PSQLD')
+        self.psqld = os.environ.get('PSQLD')
         self.mycnf = os.environ.get('PSQLCONF')
-        if not self.mysqld:
+        if not self.psqld:
             logger.error('You should set PSQLD env var before running the code.')
         if not self.mycnf:
             logger.error('You should set PSQLCONF env var before running the code.')
@@ -1821,10 +1821,8 @@ class PostgresEnv(DBEnv):
         return False
 
     def _kill_psqld(self):
-        "sudo service postgresql stop"
-        
-        psqladmin = os.path.dirname(self.psqld) + '/mysqladmin'
-        cmd = '{} -u{} -S {} shutdown'.format(psqladmin, self.user, self.sock)
+        # notice that to execute this, you need to get sudo rights for the current user        
+        cmd = 'sudo service postgresql stop'
         p_close = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE,
                                        close_fds=True)
         try:
@@ -1833,9 +1831,8 @@ class PostgresEnv(DBEnv):
             if ret_code == 0:
                 print("Close database successfully")
         except subprocess.TimeoutExpired:
-            print("Force close!")
-            os.system("ps aux|grep '" + self.sock + "'|awk '{print $2}'|xargs kill -9")
-            os.system("ps aux|grep '" + self.mycnf + "'|awk '{print $2}'|xargs kill -9")
+            print("something wrong with close")
+            exit()
         logger.info('psql is shut down')
 
     def _start_psqld(self):
