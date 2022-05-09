@@ -1264,7 +1264,7 @@ class PostgresEnv(DBEnv):
                                  passwd=self.passwd,
                                  name=self.dbname)
         db_size_str = db_conn.fetch_results("SELECT pg_size_pretty(pg_database_size('tpcc'));")[0]['pg_size_pretty']
-        db_size = int(s) for s in db_size_str.split() if s.isdigit()
+        db_size = [int(s) for s in db_size_str.split() if s.isdigit()][0]
         db_conn.close_db()
         return db_size
 
