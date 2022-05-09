@@ -349,6 +349,7 @@ def save_knobs(knobs, external_metrics):
 def initialize_knobs(knobs_config, num, keys=[]):
     global KNOBS
     global KNOB_DETAILS
+    '''
     if num == -1:
         f = open(knobs_config)
         KNOB_DETAILS = json.load(f)
@@ -370,6 +371,7 @@ def initialize_knobs(knobs_config, num, keys=[]):
             for k in keys:
                 if k not in KNOB_DETAILS.keys():
                     KNOB_DETAILS[k] = knob_tmp[key]
+    '''
     return KNOB_DETAILS
 
 
