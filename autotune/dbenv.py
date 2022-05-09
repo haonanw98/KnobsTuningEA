@@ -1326,10 +1326,10 @@ class PostgresEnv(DBEnv):
                             print(res[key])
                     internal_metrics.append(res_dict)
 
-                except Exception as err:
-                    self.connect_sucess = False
-                    logger.info("connection failed during internal metrics collection")
-                    logger.info(err)
+            except Exception as err:
+                self.connect_sucess = False
+                logger.info("connection failed during internal metrics collection")
+                logger.info(err)
 
         collect_metric(_counter)
         # f.close()
