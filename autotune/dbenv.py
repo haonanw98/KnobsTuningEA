@@ -36,8 +36,8 @@ value_type_metrics = [
     'buffer_pool_pages_dirty', 'buffer_pool_bytes_dirty', 'buffer_pool_pages_free',
     'trx_rseg_history_len', 'file_num_open_files', 'innodb_page_size']
 
-dst_data_path = /var/lib/postgresql/12/main # os.environ.get("DATADST")
-src_data_path = ~/main # os.environ.get("DATASRC")
+dst_data_path = "/var/lib/postgresql/12/main" # os.environ.get("DATADST")
+src_data_path = "~/main" # os.environ.get("DATASRC")
 log_num_default = 2
 log_size_default = 50331648
 
