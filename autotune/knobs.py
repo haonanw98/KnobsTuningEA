@@ -262,6 +262,7 @@ def init_knobs(num_total_knobs):
     ]
     '''
 
+    global KNOB_DETAILS
     KNOB_DETAILS = {
         'backend_flush_after': ['integer', [0, 256, 0]],
         'checkpoint_completion_target': ['float', [0.0, 1.0, 0.9]],
