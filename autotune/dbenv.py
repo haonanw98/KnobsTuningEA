@@ -1308,23 +1308,23 @@ class PostgresEnv(DBEnv):
             try:
                 res_dict = {}
                 if counter > warmup:
-                PG_STAT_VIEWS = {
-                    "pg_stat_archiver", "pg_stat_bgwriter", "pg_stat_database",
-                    "pg_stat_database_conflicts", "pg_stat_user_tables", "pg_statio_user_tables",
-                    "pg_stat_user_indexes", "pg_statio_user_indexes"
-                }
+                    PG_STAT_VIEWS = {
+                        "pg_stat_archiver", "pg_stat_bgwriter", "pg_stat_database",
+                        "pg_stat_database_conflicts", "pg_stat_user_tables", "pg_statio_user_tables",
+                        "pg_stat_user_indexes", "pg_statio_user_indexes"
+                    }
 
-                for table in PG_STAT_VIEWS:
-                    sql = 'SELECT * FROM {}'.format(table)
-                    db_conn.execute(sql)
-                    res = db_conn.fetch_results(sql)
+                    for table in PG_STAT_VIEWS:
+                        sql = 'SELECT * FROM {}'.format(table)
+                        db_conn.execute(sql)
+                        res = db_conn.fetch_results(sql)
 
-                    res = res[0]
-                    for key in res:
-                        # if not k in BLACKLIST:
-                        res_dict["{}.{}".format(table, key)] = res[key]
-                        print(res[key])
-                internal_metrics.append(res_dict)
+                        res = res[0]
+                        for key in res:
+                            # if not k in BLACKLIST:
+                            res_dict["{}.{}".format(table, key)] = res[key]
+                            print(res[key])
+                    internal_metrics.append(res_dict)
 
                 except Exception as err:
                     self.connect_sucess = False
