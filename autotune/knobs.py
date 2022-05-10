@@ -262,7 +262,6 @@ def init_knobs(num_total_knobs):
     ]
     '''
 
-    global KNOB_DETAILS
     KNOB_DETAILS = {
         'backend_flush_after': ['integer', [0, 256, 0]],
         'checkpoint_completion_target': ['float', [0.0, 1.0, 0.9]],
@@ -379,13 +378,17 @@ def initialize_knobs(knobs_config, num, keys=[]):
 def get_default_knobs():
     default_knobs = {}
     for name, value in KNOB_DETAILS.items():
-        if not value['type'] == "combination":
+        default_knobs[name] = value[1][2] # the default knob value
+        '''
+        if not value[0] == "combination":
             default_knobs[name] = value['default']
         else:
-            knobL = name.strip().split('|')
+            knobL = name.strip().split('|')ex
             valueL = value['default'].strip().split('|')
             for i in range(0, len(knobL)):
                 default_knobs[knobL[i]] = int(valueL[i])
+        '''
+
     return default_knobs
 
 
