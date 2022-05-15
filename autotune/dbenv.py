@@ -5,6 +5,7 @@ import threading
 import subprocess
 import numpy as np
 from abc import ABC, abstractmethod
+from .dbconnector import MysqlConnector, PostgresConnector
 from enum import Enum
 from multiprocessing import Manager
 from collections import defaultdict
@@ -1054,9 +1055,9 @@ class PostgresEnv(DBEnv):
                  log_path='',
                  threads=8,
                  host='localhost',
-                 port=3392,
-                 user='root',
-                 passwd='',
+                 port=5433,
+                 user='test',
+                 passwd='tpcc',
                  dbname='tpcc',
                  sock='',
                  rds_mode=False,
@@ -1285,10 +1286,11 @@ class PostgresEnv(DBEnv):
         # double reset
         # TODO: fix this
         # self.reset_internal_state()
-
+        print("hit")
+        _counter = 100
         def collect_metric(counter):
             counter += 1
-            print(counter)
+            print(counter, count)
             timer = threading.Timer(float(_period), collect_metric, (counter,))
             timer.start()
             if counter >= count or not im_alive.value:
@@ -1306,6 +1308,7 @@ class PostgresEnv(DBEnv):
                     return
 
             try:
+                print("hit", counter, warmup)
                 res_dict = {}
                 if counter > warmup:
                     PG_STAT_VIEWS = {
@@ -1734,7 +1737,7 @@ class PostgresEnv(DBEnv):
 
 
     def step_GP(self, knobs, best_action_applied=False):
-        #return np.random.rand(6), np.random.rand(65), np.random.rand(8)
+        #return np.random.rand(6), np.random.rand(94), np.random.rand(8)
 
         if self.reinit_interval > 0 and self.reinit_interval % RESTART_FREQUENCY == 0:
             if self.reinit:
@@ -1760,27 +1763,27 @@ class PostgresEnv(DBEnv):
 
         if not flag:
             if best_action_applied:
-                logger.info("[step {}] best:{}|tps_0|lat_300|[]|65d\n".format(self.step_count,knobs))
+                logger.info("[step {}] best:{}|tps_0|lat_300|[]|94d\n".format(self.step_count,knobs))
             else:
-                logger.info("[step {}] result:{}|tps_0|lat_300|[]|65d\n".format(self.step_count, knobs))
+                logger.info("[step {}] result:{}|tps_0|lat_300|[]|94d\n".format(self.step_count, knobs))
             if self.reinit:
                 logger.info('reinitializing database begin')
                 self.reinitdb_magic()
                 logger.info('database reinitialized')
-            return [-1, 300, -1 ], np.array([0]*65), 0
+            return [-1, 300, -1 ], np.array([0]*94), 0
 
         s = self.get_states(collect_resource)
 
         if s == None:
             if best_action_applied:
-                logger.info("[step {}] best:{}|tps_0|[]|65d\n".format(self.step_count,knobs))
+                logger.info("[step {}] best:{}|tps_0|[]|94d\n".format(self.step_count,knobs))
             else:
-                logger.info("[step {}] result:{}|tps_0|[]|65d\n".format(self.step_count, knobs))
+                logger.info("[step {}] result:{}|tps_0|[]|94d\n".format(self.step_count, knobs))
             if self.reinit:
                 logger.info('reinitializing database begin')
                 self.reinitdb_magic()
                 logger.info('database reinitialized')
-            return [-1, 300, -1 ], np.array([0]*65), 0
+            return [-1, 300, -1 ], np.array([0]*94), 0
 
         external_metrics, internal_metrics, resource = s
 
@@ -1836,8 +1839,10 @@ class PostgresEnv(DBEnv):
         logger.info('psql is shut down')
 
     def _start_psqld(self):
-        proc = subprocess.Popen([self.psqld, '--defaults-file={}'.format(self.mycnf)])
-        self.pid = proc.pid
+        proc = subprocess.Popen('sudo service postgresql start', shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE,
+                                       close_fds=True)
+        time.sleep(5)
+        self.pid = os.system("ps aux | grep postgres | grep idle | awk '{print $2}'")
         command = 'sudo cgclassify -g memory,cpuset:sever ' + str(self.pid)
         p = os.system(command)
         if not p:
@@ -1857,7 +1862,7 @@ class PostgresEnv(DBEnv):
                                          passwd=self.passwd,
                                          name=self.dbname)
                 db_conn = dbc.conn
-                if db_conn.is_connected():
+                if db_conn.closed == 0:
                     logger.info('Connected to PostgreSQL database')
                     db_conn.close()
                     break
@@ -1866,24 +1871,23 @@ class PostgresEnv(DBEnv):
 
             time.sleep(1)
             count = count + 1
-            if count > 600:
+            if count > 20:
                 start_sucess = False
                 logger.info("can not connect to DB")
                 break
 
         logger.info('finish {} seconds waiting for connection'.format(count))
-        logger.info('{} --defaults-file={}'.format(self.mysqld, self.mycnf))
-        logger.info('mysql is up')
+        logger.info('postgres is up')
         return start_sucess
 
 
     def reinitdb_magic(self):
         self._kill_psqld()
         time.sleep(10)
-        os.system('rm -rf {}'.format(dst_data_path))  # avoid moving src into dst
-        logger.info('remove all files in {}'.format(dst_data_path))
-        os.system('cp -r {} {}'.format(src_data_path, dst_data_path))
-        logger.info('cp -r {} {}'.format(src_data_path, dst_data_path))
+        os.system('sudo rm -rf {}'.format(dst_data_path))  # avoid moving src into dst
+        logger.info('sudo remove all files in {}'.format(dst_data_path))
+        os.system('sudo cp -r {} {}'.format(src_data_path, dst_data_path))
+        logger.info('sudo cp -r {} {}'.format(src_data_path, dst_data_path))
         self.apply_knobs(self.default_knobs)
         self.reinit_interval = 0
 
